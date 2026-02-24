@@ -6,7 +6,7 @@ import './styles/index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/3d-art-gallery">
       <App />
     </BrowserRouter>
   </StrictMode>
