@@ -11,6 +11,15 @@ const models = [
     vertices: "~400",
     generator: "generators/generate_tree.py",
   },
+  {
+    id: "adventurer",
+    name: "Adventurer",
+    description: "Low-poly adventurer with backpack — 24 animations including idle, walk, run, combat, and more",
+    thumb: `${BASE}thumbnails/adventurer.png`,
+    model: `${BASE}models/adventurer.glb`,
+    tags: ["low-poly", "character", "animated", "adventure"],
+    vertices: "~5,300",
+  },
   // To add a new model:
   // 1. Create generators/generate_<name>.py
   // 2. Run: npm run generate:<name>

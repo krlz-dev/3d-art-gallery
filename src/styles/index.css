@@ -337,6 +337,31 @@ body {
     border-color: var(--coral);
     color: #fff;
 }
+.viewer-toolbar .anim-select {
+    appearance: none;
+    cursor: pointer;
+    max-width: 200px;
+    font-size: 0.75rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    padding: 6px 28px 6px 12px;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+.viewer-toolbar .anim-select:hover {
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+}
+.viewer-toolbar .anim-select option {
+    background: #1e2545;
+    color: #ddd;
+    padding: 6px 10px;
+}
 .viewer-info {
     padding: 0.6rem 1.5rem;
     display: flex;

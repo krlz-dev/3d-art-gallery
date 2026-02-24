@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "new-model": "./scripts/new-model.sh",
     "generate:tree": "blender -b --python generators/generate_tree.py",
-    "generate:all": "npm run generate:tree"
+    "generate:character": "blender -b --python generators/generate_character.py",
+    "generate:all": "npm run generate:tree && npm run generate:character"
   },
   "dependencies": {
     "@babylonjs/core": "^7.0.0",

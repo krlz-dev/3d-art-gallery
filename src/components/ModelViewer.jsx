@@ -10,6 +10,8 @@ export default function ModelViewer({ model, isOpen, onClose }) {
   const [wireframeOn, setWireframeOn] = useState(false)
   const [darkBg, setDarkBg] = useState(true)
   const [stats, setStats] = useState('')
+  const [animations, setAnimations] = useState([])
+  const [activeAnim, setActiveAnim] = useState('')
 
   // Reset state when opening
   useEffect(() => {
@@ -18,6 +20,8 @@ export default function ModelViewer({ model, isOpen, onClose }) {
       setWireframeOn(false)
       setDarkBg(true)
       setStats('')
+      setAnimations([])
+      setActiveAnim('')
     }
   }, [isOpen])
 
@@ -60,21 +64,26 @@ export default function ModelViewer({ model, isOpen, onClose }) {
       camera.panningSensibility = 200
       cameraRef.current = camera
 
-      // Lights
+      // Lights — bright enough for dark-colored models
       const hemi = new BABYLON.HemisphericLight('h', new BABYLON.Vector3(0, 1, 0), scene)
-      hemi.intensity = 0.5
-      hemi.groundColor = new BABYLON.Color3(0.2, 0.22, 0.32)
+      hemi.intensity = 1.0
+      hemi.groundColor = new BABYLON.Color3(0.35, 0.38, 0.45)
 
       const dir = new BABYLON.DirectionalLight('d', new BABYLON.Vector3(-1, -2, 1), scene)
-      dir.intensity = 0.9
-      dir.diffuse = new BABYLON.Color3(0.88, 0.9, 1.0)
+      dir.intensity = 1.4
+      dir.diffuse = new BABYLON.Color3(0.95, 0.93, 1.0)
+
+      // Fill light from opposite side
+      const fill = new BABYLON.DirectionalLight('fill', new BABYLON.Vector3(1, -1, -1), scene)
+      fill.intensity = 0.6
+      fill.diffuse = new BABYLON.Color3(0.8, 0.85, 1.0)
 
       const shadow = new BABYLON.ShadowGenerator(1024, dir)
       shadow.useBlurExponentialShadowMap = true
 
-      // Ground
+      // Ground (positioned later after model loads)
       const ground = BABYLON.MeshBuilder.CreateGround('gnd', { width: 25, height: 25 }, scene)
-      ground.position.y = -0.12
+      ground.position.y = -10
       const gMat = new BABYLON.StandardMaterial('gMat', scene)
       gMat.diffuseColor = new BABYLON.Color3(0.1, 0.11, 0.18)
       gMat.specularColor = new BABYLON.Color3(0.03, 0.03, 0.05)
@@ -95,6 +104,62 @@ export default function ModelViewer({ model, isOpen, onClose }) {
           shadow.addShadowCaster(mesh)
         })
         setStats(`Meshes ${meshes.length}  Verts ${verts}  Faces ${Math.round(faces)}`)
+
+        // Auto-frame camera to model bounds
+        const bounds = meshes.reduce((acc, m) => {
+          if (!m.getBoundingInfo) return acc
+          const b = m.getBoundingInfo().boundingBox
+          const min = b.minimumWorld
+          const max = b.maximumWorld
+          return {
+            min: new BABYLON.Vector3(
+              Math.min(acc.min.x, min.x), Math.min(acc.min.y, min.y), Math.min(acc.min.z, min.z)
+            ),
+            max: new BABYLON.Vector3(
+              Math.max(acc.max.x, max.x), Math.max(acc.max.y, max.y), Math.max(acc.max.z, max.z)
+            ),
+          }
+        }, {
+          min: new BABYLON.Vector3(Infinity, Infinity, Infinity),
+          max: new BABYLON.Vector3(-Infinity, -Infinity, -Infinity),
+        })
+
+        const center = bounds.min.add(bounds.max).scale(0.5)
+        const extent = bounds.max.subtract(bounds.min)
+        const maxDim = Math.max(extent.x, extent.y, extent.z)
+
+        // Position ground at model's feet
+        ground.position.y = bounds.min.y - 0.02
+
+        // Frame camera: target model center, distance based on size
+        camera.target = new BABYLON.Vector3(center.x, center.y, center.z)
+        camera.radius = maxDim * 2.0
+        camera.beta = Math.PI / 2.8
+
+        // Handle animations
+        const groups = scene.animationGroups || []
+        if (groups.length > 0) {
+          // Stop all first
+          groups.forEach(ag => ag.stop())
+
+          const animNames = groups.map(ag => ag.name)
+          setAnimations(animNames)
+
+          // Pick a default: prefer Idle, then Walk, then first
+          const preferredOrder = ['Idle_Neutral', 'Idle', 'Walk', 'Run']
+          let defaultAnim = animNames[0]
+          for (const pref of preferredOrder) {
+            const found = animNames.find(n =>
+              n.toLowerCase().includes(pref.toLowerCase())
+            )
+            if (found) { defaultAnim = found; break }
+          }
+
+          // Play the default
+          const ag = groups.find(g => g.name === defaultAnim)
+          if (ag) ag.start(true)
+          setActiveAnim(defaultAnim)
+        }
       })
 
       // Auto-rotate
@@ -193,6 +258,16 @@ export default function ModelViewer({ model, isOpen, onClose }) {
     })
   }, [])
 
+  const switchAnimation = useCallback((animName) => {
+    const scene = sceneRef.current
+    if (!scene) return
+    const groups = scene.animationGroups || []
+    groups.forEach(ag => ag.stop())
+    const ag = groups.find(g => g.name === animName)
+    if (ag) ag.start(true)
+    setActiveAnim(animName)
+  }, [])
+
   if (!isOpen || !model) return null
 
   return (
@@ -225,6 +300,19 @@ export default function ModelViewer({ model, isOpen, onClose }) {
             <button className="btn-tool" onClick={toggleBackground}>
               <i className="bi bi-circle-half"></i> {darkBg ? 'Light' : 'Dark'} Mode
             </button>
+            {animations.length > 1 && (
+              <select
+                className="btn-tool anim-select"
+                value={activeAnim}
+                onChange={(e) => switchAnimation(e.target.value)}
+              >
+                {animations.map((name) => (
+                  <option key={name} value={name}>
+                    {name.replace(/^.*\|/, '')}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
           <div className="viewer-info">
             <div><span>LMB</span> Rotate</div>
