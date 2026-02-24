@@ -1,0 +1,25 @@
+{
+  "name": "3d-art-gallery",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Procedural 3D art gallery - Blender Python generated assets viewed with Babylon.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "generate:tree": "blender -b --python generators/generate_tree.py",
+    "generate:all": "npm run generate:tree"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^7.0.0",
+    "@babylonjs/loaders": "^7.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.0",
+    "vite": "^6.0.0"
+  }
+}
