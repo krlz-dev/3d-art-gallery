@@ -13,8 +13,8 @@ import sys
 # ── Config ──────────────────────────────────────────────
 SEED = 42
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUTPUT_FILE = os.path.join(PROJECT_ROOT, "models", "tree.glb")
-THUMBNAIL_FILE = os.path.join(PROJECT_ROOT, "thumbnails", "tree.png")
+OUTPUT_FILE = os.path.join(PROJECT_ROOT, "public", "models", "tree.glb")
+THUMBNAIL_FILE = os.path.join(PROJECT_ROOT, "public", "thumbnails", "tree.png")
 
 os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 os.makedirs(os.path.dirname(THUMBNAIL_FILE), exist_ok=True)

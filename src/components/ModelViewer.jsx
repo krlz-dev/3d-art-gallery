@@ -37,7 +37,7 @@ export default function ModelViewer({ model, isOpen, onClose }) {
       if (!canvas) return
 
       const BABYLON = await import('@babylonjs/core')
-      await import('@babylonjs/loaders')
+      await import('@babylonjs/loaders/glTF')
 
       if (disposed) return
 

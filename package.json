@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "new-model": "./scripts/new-model.sh",
     "generate:tree": "blender -b --python generators/generate_tree.py",
     "generate:all": "npm run generate:tree"
   },
